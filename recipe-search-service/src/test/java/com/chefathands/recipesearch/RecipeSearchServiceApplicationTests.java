@@ -1,36 +1,13 @@
-external-api-services/
-├── pom.xml
-├── recipe-search-service/
-│   ├── pom.xml
-│   └── src/
-│       ├── main/
-│       │   ├── java/
-│       │   │   └── com/
-│       │   │       └── chefathands/
-│       │   │           └── recipe/
-│       │   │               └── RecipeSearchServiceApplication.java
-│       │   └── resources/
-│       │       └── application.properties
-│       └── test/
-│           └── java/
-│               └── com/
-│                   └── chefathands/
-│                       └── recipe/
-│                           └── RecipeSearchServiceApplicationTests.java
-└── recipe-detail-service/
-    ├── pom.xml
-    └── src/
-        ├── main/
-        │   ├── java/
-        │   │   └── com/
-        │   │       └── chefathands/
-        │   │           └── recipe/
-        │   │               └── RecipeDetailServiceApplication.java
-        │   └── resources/
-        │       └── application.properties
-        └── test/
-            └── java/
-                └── com/
-                    └── chefathands/
-                        └── recipe/
-                            └── RecipeDetailServiceApplicationTests.java
+package com.chefathands.recipesearch;
+
+import org.junit.jupiter.api.Test;
+import org.springframework.boot.test.context.SpringBootTest;
+
+@SpringBootTest
+class RecipeSearchServiceApplicationTests {
+
+    @Test
+    void contextLoads() {
+        // This test verifies that the Spring application context loads successfully
+    }
+}

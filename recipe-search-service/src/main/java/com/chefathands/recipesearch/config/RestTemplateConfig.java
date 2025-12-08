@@ -1,16 +1,14 @@
-<!-- filepath: /Users/anejtomplak/School/PRPO/ChefAtHands/external-api-services/pom.xml -->
-<project xmlns="http://maven.apache.org/POM/4.0.0"
-         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 https://maven.apache.org/xsd/maven-4.0.0.xsd">
-  <modelVersion>4.0.0</modelVersion>
+package com.chefathands.recipesearch.config;
 
-  <groupId>com.chefathands</groupId>
-  <artifactId>external-api-services</artifactId>
-  <version>0.1.0-SNAPSHOT</version>
-  <packaging>pom</packaging>
+import org.springframework.context.annotation.Bean;
+import org.springframework.context.annotation.Configuration;
+import org.springframework.web.client.RestTemplate;
 
-  <modules>
-    <module>recipe-search-service</module>
-    <module>recipe-detail-service</module>
-  </modules>
-</project>
+@Configuration
+public class RestTemplateConfig {
+
+    @Bean
+    public RestTemplate restTemplate() {
+        return new RestTemplate();
+    }
+}

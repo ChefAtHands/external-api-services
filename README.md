@@ -1,266 +1,226 @@
-### Step 1: Create the Repository Structure
+## Recipe Search Service API Endpoints
 
-1. **Create a new directory for the repository**:
-   ```
-   ChefAtHands/external-api-services
-   ```
+The Recipe Search Service runs on **port 8083** and provides the following endpoints:
 
-2. **Inside the `external-api-services` directory, create the following structure**:
-   ```
-   external-api-services/
-   ├── pom.xml
-   ├── recipe-search-service/
-   │   ├── pom.xml
-   │   └── src/
-   │       ├── main/
-   │       │   ├── java/
-   │       │   │   └── com/
-   │       │   │       └── chefathands/
-   │       │   │           └── recipesearch/
-   │       │   │               ├── RecipeSearchServiceApplication.java
-   │       │   │               └── controller/
-   │       │   └── resources/
-   │       │       └── application.properties
-   │       └── test/
-   │           └── java/
-   │               └── com/
-   │                   └── chefathands/
-   │                       └── recipesearch/
-   │                           └── RecipeSearchServiceApplicationTests.java
-   └── recipe-detail-service/
-       ├── pom.xml
-       └── src/
-           ├── main/
-           │   ├── java/
-           │   │   └── com/
-           │   │       └── chefathands/
-           │   │           └── recipedetail/
-           │   │               ├── RecipeDetailServiceApplication.java
-           │   │               └── controller/
-           │   └── resources/
-           │       └── application.properties
-           └── test/
-               └── java/
-                   └── com/
-                       └── chefathands/
-                           └── recipedetail/
-                               └── RecipeDetailServiceApplicationTests.java
-   ```
-
-### Step 2: Create the Parent `pom.xml`
-
-In the `external-api-services/pom.xml`, add the following content:
-
-```xml
-<project xmlns="http://maven.apache.org/POM/4.0.0"
-         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 https://maven.apache.org/xsd/maven-4.0.0.xsd">
-  <modelVersion>4.0.0</modelVersion>
-
-  <groupId>com.chefathands</groupId>
-  <artifactId>external-api-services</artifactId>
-  <version>0.1.0-SNAPSHOT</version>
-  <packaging>pom</packaging>
-
-  <modules>
-    <module>recipe-search-service</module>
-    <module>recipe-detail-service</module>
-  </modules>
-</project>
+### Base URL
+```
+http://localhost:8083
 ```
 
-### Step 3: Create the Recipe Search Service `pom.xml`
+### 1. Search Recipes by Ingredients
 
-In the `recipe-search-service/pom.xml`, add the following content:
+Search for recipes based on a list of ingredients with optional nutritional filters.
 
-```xml
-<project xmlns="http://maven.apache.org/POM/4.0.0"
-         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 https://maven.apache.org/xsd/maven-4.0.0.xsd">
-  <modelVersion>4.0.0</modelVersion>
+**Endpoint**: `POST /api/recipes/search`
 
-  <parent>
-    <groupId>com.chefathands</groupId>
-    <artifactId>external-api-services</artifactId>
-    <version>0.1.0-SNAPSHOT</version>
-    <relativePath>../pom.xml</relativePath>
-  </parent>
-
-  <artifactId>recipe-search-service</artifactId>
-  <packaging>jar</packaging>
-
-  <dependencies>
-    <dependency>
-      <groupId>org.springframework.boot</groupId>
-      <artifactId>spring-boot-starter-web</artifactId>
-    </dependency>
-    <dependency>
-      <groupId>org.springframework.boot</groupId>
-      <artifactId>spring-boot-starter-data-jpa</artifactId>
-    </dependency>
-    <dependency>
-      <groupId>org.springframework.boot</groupId>
-      <artifactId>spring-boot-starter-validation</artifactId>
-    </dependency>
-    <dependency>
-      <groupId>org.springframework.boot</groupId>
-      <artifactId>spring-boot-starter-test</artifactId>
-      <scope>test</scope>
-    </dependency>
-  </dependencies>
-
-  <build>
-    <plugins>
-      <plugin>
-        <groupId>org.springframework.boot</groupId>
-        <artifactId>spring-boot-maven-plugin</artifactId>
-      </plugin>
-    </plugins>
-  </build>
-</project>
+**Request Body**:
+```json
+{
+  "ingredients": ["chicken", "garlic", "onion"],
+  "number": 10,
+  "offset": 0,
+  "minProtein": 30,
+  "maxProtein": 100,
+  "minCarbs": 10,
+  "maxCarbs": 50,
+  "minCalories": 300,
+  "maxCalories": 600,
+  "minFat": 5,
+  "maxFat": 30,
+  "type": "main course",
+  "diet": "vegetarian"
+}
 ```
 
-### Step 4: Create the Recipe Detail Service `pom.xml`
+**Request Parameters**:
+| Parameter | Type | Required | Description |
+|-----------|------|----------|-------------|
+| `ingredients` | array | Yes | List of ingredient names |
+| `number` | integer | No | Number of results to return (default: 10) |
+| `offset` | integer | No | Offset for pagination (default: 0) |
+| `minProtein` | integer | No | Minimum protein in grams |
+| `maxProtein` | integer | No | Maximum protein in grams |
+| `minCarbs` | integer | No | Minimum carbs in grams |
+| `maxCarbs` | integer | No | Maximum carbs in grams |
+| `minCalories` | integer | No | Minimum calories |
+| `maxCalories` | integer | No | Maximum calories |
+| `minFat` | integer | No | Minimum fat in grams |
+| `maxFat` | integer | No | Maximum fat in grams |
+| `type` | string | No | Recipe type (e.g., "main course", "dessert", "appetizer") |
+| `diet` | string | No | Diet type (e.g., "vegetarian", "vegan", "gluten free") |
 
-In the `recipe-detail-service/pom.xml`, add the following content:
-
-```xml
-<project xmlns="http://maven.apache.org/POM/4.0.0"
-         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 https://maven.apache.org/xsd/maven-4.0.0.xsd">
-  <modelVersion>4.0.0</modelVersion>
-
-  <parent>
-    <groupId>com.chefathands</groupId>
-    <artifactId>external-api-services</artifactId>
-    <version>0.1.0-SNAPSHOT</version>
-    <relativePath>../pom.xml</relativePath>
-  </parent>
-
-  <artifactId>recipe-detail-service</artifactId>
-  <packaging>jar</packaging>
-
-  <dependencies>
-    <dependency>
-      <groupId>org.springframework.boot</groupId>
-      <artifactId>spring-boot-starter-web</artifactId>
-    </dependency>
-    <dependency>
-      <groupId>org.springframework.boot</groupId>
-      <artifactId>spring-boot-starter-data-jpa</artifactId>
-    </dependency>
-    <dependency>
-      <groupId>org.springframework.boot</groupId>
-      <artifactId>spring-boot-starter-validation</artifactId>
-    </dependency>
-    <dependency>
-      <groupId>org.springframework.boot</groupId>
-      <artifactId>spring-boot-starter-test</artifactId>
-      <scope>test</scope>
-    </dependency>
-  </dependencies>
-
-  <build>
-    <plugins>
-      <plugin>
-        <groupId>org.springframework.boot</groupId>
-        <artifactId>spring-boot-maven-plugin</artifactId>
-      </plugin>
-    </plugins>
-  </build>
-</project>
+**Response**:
+```json
+{
+  "results": [
+    {
+      "id": 715415,
+      "title": "Red Lentil Soup with Chicken and Turnips",
+      "image": "https://img.spoonacular.com/recipes/715415-312x231.jpg",
+      "readyInMinutes": 55,
+      "servings": 8,
+      "sourceUrl": "https://www.pinkwhen.com/red-lentil-soup-with-chicken-and-turnips/",
+      "summary": "Red Lentil Soup with Chicken and Turnips might be a good recipe..."
+    }
+  ],
+  "totalResults": 611,
+  "offset": 0,
+  "number": 10
+}
 ```
 
-### Step 5: Create Basic Application Classes
+**Example Request**:
+```bash
+curl -X POST http://localhost:8083/api/recipes/search \
+  -H "Content-Type: application/json" \
+  -d '{
+    "ingredients": ["chicken", "garlic"],
+    "number": 5,
+    "minProtein": 30
+  }'
+```
 
-1. **Recipe Search Service Application**:
-   In `recipe-search-service/src/main/java/com/chefathands/recipesearch/RecipeSearchServiceApplication.java`:
+### 2. Get Recipe Details by ID
 
-   ```java
-   package com.chefathands.recipesearch;
+Retrieve detailed information about a specific recipe, including nutrition facts, ingredients, and instructions.
 
-   import org.springframework.boot.SpringApplication;
-   import org.springframework.boot.autoconfigure.SpringBootApplication;
+**Endpoint**: `GET /api/recipes/{id}`
 
-   @SpringBootApplication
-   public class RecipeSearchServiceApplication {
-       public static void main(String[] args) {
-           SpringApplication.run(RecipeSearchServiceApplication.class, args);
-       }
-   }
-   ```
+**Path Parameters**:
+| Parameter | Type | Required | Description |
+|-----------|------|----------|-------------|
+| `id` | long | Yes | Spoonacular recipe ID |
 
-2. **Recipe Detail Service Application**:
-   In `recipe-detail-service/src/main/java/com/chefathands/recipedetail/RecipeDetailServiceApplication.java`:
+**Response**:
+```json
+{
+  "id": 715415,
+  "title": "Red Lentil Soup with Chicken and Turnips",
+  "image": "https://img.spoonacular.com/recipes/715415-556x370.jpg",
+  "readyInMinutes": 55,
+  "servings": 8,
+  "sourceUrl": "https://www.pinkwhen.com/red-lentil-soup-with-chicken-and-turnips/",
+  "summary": "Red Lentil Soup with Chicken and Turnips might be a good recipe...",
+  "extendedIngredients": [...],
+  "analyzedInstructions": [...],
+  "nutrition": {
+    "nutrients": [...]
+  }
+}
+```
 
-   ```java
-   package com.chefathands.recipedetail;
+**Example Request**:
+```bash
+curl http://localhost:8083/api/recipes/715415
+```
 
-   import org.springframework.boot.SpringApplication;
-   import org.springframework.boot.autoconfigure.SpringBootApplication;
+---
 
-   @SpringBootApplication
-   public class RecipeDetailServiceApplication {
-       public static void main(String[] args) {
-           SpringApplication.run(RecipeDetailServiceApplication.class, args);
-       }
-   }
-   ```
+## Example Usage Scenarios
 
-### Step 6: Add Controllers
+### Scenario 1: Basic Search
+Search for chicken recipes:
+```bash
+curl -X POST http://localhost:8083/api/recipes/search \
+  -H "Content-Type: application/json" \
+  -d '{
+    "ingredients": ["chicken"],
+    "number": 5
+  }'
+```
 
-You can create controllers for both services to handle incoming requests. For example:
+### Scenario 2: Search with Nutritional Filters
+Find high-protein, low-carb recipes:
+```bash
+curl -X POST http://localhost:8083/api/recipes/search \
+  -H "Content-Type: application/json" \
+  -d '{
+    "ingredients": ["salmon", "broccoli"],
+    "number": 10,
+    "minProtein": 30,
+    "maxCarbs": 50,
+    "minCalories": 300,
+    "maxCalories": 600
+  }'
+```
 
-- **Recipe Search Controller** in `recipe-search-service/src/main/java/com/chefathands/recipesearch/controller/RecipeSearchController.java`:
+### Scenario 3: Search with Diet Filter
+Find vegetarian pasta recipes:
+```bash
+curl -X POST http://localhost:8083/api/recipes/search \
+  -H "Content-Type: application/json" \
+  -d '{
+    "ingredients": ["pasta", "tomato", "basil"],
+    "number": 10,
+    "diet": "vegetarian",
+    "type": "main course"
+  }'
+```
 
-   ```java
-   package com.chefathands.recipesearch.controller;
+### Scenario 4: Pagination
+Get the second page of results:
+```bash
+curl -X POST http://localhost:8083/api/recipes/search \
+  -H "Content-Type: application/json" \
+  -d '{
+    "ingredients": ["chicken"],
+    "number": 10,
+    "offset": 10
+  }'
+```
 
-   import org.springframework.web.bind.annotation.GetMapping;
-   import org.springframework.web.bind.annotation.RequestParam;
-   import org.springframework.web.bind.annotation.RestController;
+### Scenario 5: Get Recipe Details
+After getting recipe IDs from search, fetch full details:
+```bash
+curl http://localhost:8083/api/recipes/715415
+```
 
-   @RestController
-   public class RecipeSearchController {
-       @GetMapping("/api/recipes/search")
-       public String searchRecipes(@RequestParam String query) {
-           // Implement search logic here
-           return "Searching for recipes with query: " + query;
-       }
-   }
-   ```
+---
 
-- **Recipe Detail Controller** in `recipe-detail-service/src/main/java/com/chefathands/recipedetail/controller/RecipeDetailController.java`:
+## Integration with Other Services
 
-   ```java
-   package com.chefathands.recipedetail.controller;
+The Recipe Search Service is designed to be called by other microservices in the ChefAtHands ecosystem:
 
-   import org.springframework.web.bind.annotation.GetMapping;
-   import org.springframework.web.bind.annotation.PathVariable;
-   import org.springframework.web.bind.annotation.RestController;
+### From Recommendation Service
 
-   @RestController
-   public class RecipeDetailController {
-       @GetMapping("/api/recipes/{id}")
-       public String getRecipeDetail(@PathVariable String id) {
-           // Implement detail retrieval logic here
-           return "Details for recipe ID: " + id;
-       }
-   }
-   ```
+The recommendation-service calls the recipe-search-service to find recipes based on user ingredients:
 
-### Step 7: Build and Run
+```java
+// In recommendation-service
+RecipeSearchResponse response = recipeSearchClient.searchRecipes(
+    userIngredients,  // ["Mozzarella", "Garlic", "Chicken Breast"]
+    10,               // number of results
+    0,                // offset
+    30,               // minProtein
+    null,             // maxProtein
+    null,             // minCarbs
+    50,               // maxCarbs
+    null,             // minCalories
+    null,             // maxCalories
+    null,             // minFat
+    null,             // maxFat
+    "main course",    // type
+    null              // diet
+);
+```
 
-1. Navigate to the `external-api-services` directory.
-2. Run the following command to build the project:
-   ```bash
-   mvn clean install
-   ```
-3. You can run each service independently by navigating to their respective directories and using:
-   ```bash
-   mvn spring-boot:run
-   ```
+### Configuration
 
-### Conclusion
+To integrate with the recipe-search-service, add this to your service's `application.properties`:
 
-You now have a new repository for external API services with a Recipe Search Service and a Recipe Detail Service. Each service has its own `pom.xml` that connects to the parent `pom.xml`, and basic controllers are set up to handle requests. You can expand the functionality as needed!
+```properties
+# Recipe Search Service URL
+recipe-search-service.url=http://localhost:8083
+```
+
+---
+
+## Caching Behavior
+
+- Recipes fetched via the detail endpoint (`GET /api/recipes/{id}`) are automatically cached for 24 hours
+- Individual recipes from search results are also cached when retrieved
+- Cache reduces API calls to the Spoonacular API (150 calls/day limit on free tier)
+- Check cached recipes using `GET /api/recipes/cached`
+- Clear cache manually using `DELETE /api/recipes/cached`
+
+---

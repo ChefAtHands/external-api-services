@@ -1,16 +1,16 @@
-<!-- filepath: /Users/anejtomplak/School/PRPO/ChefAtHands/external-api-services/pom.xml -->
-<project xmlns="http://maven.apache.org/POM/4.0.0"
-         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 https://maven.apache.org/xsd/maven-4.0.0.xsd">
-  <modelVersion>4.0.0</modelVersion>
+package com.chefathands.recipesearch.repository;
 
-  <groupId>com.chefathands</groupId>
-  <artifactId>external-api-services</artifactId>
-  <version>0.1.0-SNAPSHOT</version>
-  <packaging>pom</packaging>
+import com.chefathands.recipesearch.model.RecipeCache;
+import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.stereotype.Repository;
 
-  <modules>
-    <module>recipe-search-service</module>
-    <module>recipe-detail-service</module>
-  </modules>
-</project>
+import java.time.LocalDateTime;
+import java.util.Optional;
+
+@Repository
+public interface RecipeCacheRepository extends JpaRepository<RecipeCache, Long> {
+    
+    Optional<RecipeCache> findBySpoonacularId(Long spoonacularId);
+    
+    Optional<RecipeCache> findBySpoonacularIdAndCachedAtAfter(Long spoonacularId, LocalDateTime cachedAfter);
+}

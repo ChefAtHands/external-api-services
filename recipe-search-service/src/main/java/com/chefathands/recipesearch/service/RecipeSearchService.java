@@ -46,18 +46,9 @@ public class RecipeSearchService {
             // Call Spoonacular API
             JsonNode response = spoonacularClient.searchRecipesByIngredients(request);
             
-            // Debug: Log the entire response
-            logger.debug("API Response: {}", response.toString());
-            
             // Parse response
             List<Recipe> recipes = new ArrayList<>();
             JsonNode resultsNode = response.get("results");
-            
-            logger.debug("Results node exists: {}", resultsNode != null);
-            if (resultsNode != null) {
-                logger.debug("Results node is array: {}", resultsNode.isArray());
-                logger.debug("Results node size: {}", resultsNode.size());
-            }
             
             if (resultsNode != null && resultsNode.isArray()) {
                 for (JsonNode node : resultsNode) {
@@ -66,8 +57,8 @@ public class RecipeSearchService {
                         Recipe recipe = objectMapper.treeToValue(node, Recipe.class);
                         recipes.add(recipe);
                         
-                        // Cache the recipe
-                        cacheRecipe(recipe);
+                        // Cache the recipe node (not the Recipe object)
+                        cacheRecipe(node);
                     } catch (Exception e) {
                         logger.error("Error parsing recipe node", e);
                     }
@@ -111,7 +102,14 @@ public class RecipeSearchService {
 
         // Fetch from API if not in cache
         Recipe recipe = spoonacularClient.getRecipeDetails(recipeId);
-        cacheRecipe(recipe);
+        
+        // Convert Recipe to JsonNode for caching
+        try {
+            JsonNode recipeNode = objectMapper.valueToTree(recipe);
+            cacheRecipe(recipeNode);
+        } catch (Exception e) {
+            logger.error("Error converting recipe to JSON for caching", e);
+        }
         
         return recipe;
     }
@@ -119,29 +117,21 @@ public class RecipeSearchService {
     /**
      * Cache recipe data
      */
-    private void cacheRecipe(Recipe recipe) {
+    private void cacheRecipe(JsonNode recipeNode) {
         try {
-            String recipeJson = objectMapper.writeValueAsString(recipe);
+            Long spoonacularId = recipeNode.get("id").asLong();
+            String recipeJson = recipeNode.toString();
             
-            Optional<RecipeCache> existingCache = recipeCacheRepository.findBySpoonacularId(recipe.getId());
-            RecipeCache cache;
+            // Extract title from the JSON
+            String title = recipeNode.has("title") ? recipeNode.get("title").asText() : "Unknown Recipe";
             
-            if (existingCache.isPresent()) {
-                cache = existingCache.get();
-                cache.setRecipeData(recipeJson);
-                cache.setCachedAt(LocalDateTime.now());
-            } else {
-                cache = new RecipeCache();
-                cache.setSpoonacularId(recipe.getId());
-                cache.setRecipeData(recipeJson);
-                cache.setCachedAt(LocalDateTime.now());
-            }
+            RecipeCache cache = new RecipeCache(spoonacularId, recipeJson, LocalDateTime.now());
+            cache.setTitle(title);  // Set the title before saving
             
             recipeCacheRepository.save(cache);
-            logger.debug("Cached recipe: {}", recipe.getId());
-            
+            logger.info("Successfully cached recipe: {} (ID: {})", title, spoonacularId);
         } catch (Exception e) {
-            logger.error("Error caching recipe: {}", recipe.getId(), e);
+            logger.error("Error caching recipe: {}", recipeNode.get("id").asLong(), e);
         }
-    }
+    }   
 }

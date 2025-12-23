@@ -4,20 +4,27 @@ import javax.persistence.*;
 import java.time.LocalDateTime;
 
 @Entity
-@Table(name = "recipe_cache")
+@Table(name = "Recipes", schema = "dbo")
 public class RecipeCache {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @Column(name = "RecipeID")
     private Long id;
 
-    @Column(name = "spoonacular_id", unique = true, nullable = false)
+    @Column(name = "spoonacular_id", unique = true, nullable = true)
     private Long spoonacularId;
 
-    @Column(name = "recipe_data", columnDefinition = "TEXT", nullable = false)
+    @Column(name = "Title", nullable = true)
+    private String title;
+
+    @Column(name = "Instructions", columnDefinition = "NVARCHAR(MAX)", nullable = true)
     private String recipeData;
 
-    @Column(name = "cached_at", nullable = false)
+    @Column(name = "Category", nullable = true)
+    private String category;
+
+    @Column(name = "cached_at", nullable = true)  // Must be nullable
     private LocalDateTime cachedAt;
 
     public RecipeCache() {}
@@ -28,7 +35,8 @@ public class RecipeCache {
         this.cachedAt = cachedAt;
     }
 
-    // Getters and setters
+    // ...existing getters and setters...
+    
     public Long getId() {
         return id;
     }
@@ -43,6 +51,22 @@ public class RecipeCache {
 
     public void setSpoonacularId(Long spoonacularId) {
         this.spoonacularId = spoonacularId;
+    }
+
+    public String getTitle() {
+        return title;
+    }
+
+    public void setTitle(String title) {
+        this.title = title;
+    }
+
+    public String getCategory() {
+        return category;
+    }
+
+    public void setCategory(String category) {
+        this.category = category;
     }
 
     public String getRecipeData() {

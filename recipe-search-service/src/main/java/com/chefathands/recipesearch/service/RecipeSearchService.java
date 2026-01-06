@@ -45,19 +45,29 @@ public class RecipeSearchService {
         try {
             // Call Spoonacular API
             JsonNode response = spoonacularClient.searchRecipesByIngredients(request);
-            
-            // Parse response
+
             List<Recipe> recipes = new ArrayList<>();
-            JsonNode resultsNode = response.get("results");
-            
+            JsonNode resultsNode = null;
+
+            // CASE 1: complexSearch → object with "results"
+            if (response.has("results") && response.get("results").isArray()) {
+                resultsNode = response.get("results");
+            }
+
+            // CASE 2: findByIngredients → array response
+            else if (response.isArray()) {
+                resultsNode = response;
+            }
+
+            // Parse results
             if (resultsNode != null && resultsNode.isArray()) {
                 for (JsonNode node : resultsNode) {
                     try {
                         logger.debug("Processing recipe node: {}", node.toString());
                         Recipe recipe = objectMapper.treeToValue(node, Recipe.class);
                         recipes.add(recipe);
-                        
-                        // Cache the recipe node (not the Recipe object)
+
+                        // Cache the recipe node
                         cacheRecipe(node);
                     } catch (Exception e) {
                         logger.error("Error parsing recipe node", e);
@@ -65,9 +75,18 @@ public class RecipeSearchService {
                 }
             }
 
-            Integer totalResults = response.has("totalResults") ? response.get("totalResults").asInt() : recipes.size();
-            Integer offset = response.has("offset") ? response.get("offset").asInt() : 0;
-            Integer number = response.has("number") ? response.get("number").asInt() : recipes.size();
+            // Extract metadata (only exists in complexSearch)
+            Integer totalResults = response.has("totalResults")
+                    ? response.get("totalResults").asInt()
+                    : recipes.size();
+
+            Integer offset = response.has("offset")
+                    ? response.get("offset").asInt()
+                    : 0;
+
+            Integer number = response.has("number")
+                    ? response.get("number").asInt()
+                    : recipes.size();
 
             logger.info("Found {} recipes out of {} total results", recipes.size(), totalResults);
 
